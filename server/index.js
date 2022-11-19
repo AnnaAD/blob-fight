@@ -1,6 +1,8 @@
 
 const game_data = require("./game_data.js");
 const {random_rgba, generator} = require("./render.js");
+const path = require('path');
+
 
 const PORT = process.env.PORT || 3001;
 
@@ -30,6 +32,8 @@ Object.keys(game_data.creatures).forEach(k => {
     game_data.creatures[k].path = generator();
 });
 
+
+
 app.get("/api", (req, res) => {
     res.json({ message: "Hello from server!" });
   });
@@ -44,6 +48,14 @@ app.get("/game", (req, res) => {
     console.log("sent ", games[req.query.id]);
     res.json(games[req.query.id]);
 });
+
+
+const publicPath     = express.static(path.join(__dirname, '../client/build'), { redirect : false });
+
+const indexPath  = path.join(__dirname, '../client/build');
+app.use(publicPath);
+app.get('/', function (_, res) { res.sendFile(indexPath) });
+app.get('*', function (_, res) { res.sendFile(indexPath) });
 
 app.post("/join_game", (req, res) => {
     console.log(req.body);
@@ -155,11 +167,7 @@ io.on('connection', (socket) => {
   }
 
  
-app.get("*", (req, res) => {
-res.sendFile(
-    path.join(__dirname, "../client/build/index.html")
-);
-});
+
 
 server.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
